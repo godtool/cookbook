@@ -26,100 +26,66 @@ volume = get_volume("voice-chat-example-volume")
 # - Add modal decorator
 # - Attach volume
 # - Run
-@app.function(
-    image=image,
-    gpu="L40S",
-    volumes={
-        "/sessions": volume,
-    },
-    secrets=get_secrets(),
-    timeout=1 * 60 * 60,
-    retries=get_retries(max_retries=1),
-    max_inputs=1,  # Ensure we get a fresh container on retry
-)
-def run(session_id: str) -> str:
+# @app.function(
+#     image=image,
+#     gpu="L40S",
+#     volumes={
+#         "/sessions": volume,
+#     },
+#     secrets=get_secrets(),
+#     timeout=1 * 60 * 60,
+#     retries=get_retries(max_retries=1),
+#     max_inputs=1,  # Ensure we get a fresh container on retry
+# )
+# def run(session_id: str) -> str:
 
-    # Load models
-    HF_REPO = "LiquidAI/LFM2-Audio-1.5B"
+#     # Load models
+#     HF_REPO = "LiquidAI/LFM2-Audio-1.5B"
 
-    processor = LFM2AudioProcessor.from_pretrained(HF_REPO).eval()
-    model = LFM2AudioModel.from_pretrained(HF_REPO).eval()
+#     processor = LFM2AudioProcessor.from_pretrained(HF_REPO).eval()
+#     model = LFM2AudioModel.from_pretrained(HF_REPO).eval()
 
-    # Set up inputs for the model
-    chat = ChatState(processor)
+#     # Set up inputs for the model
+#     chat = ChatState(processor)
 
-    # System prompt
-    chat.new_turn("system")
-    chat.add_text("Respond with interleaved text and audio.")
-    chat.end_turn()
+#     # System prompt
+#     chat.new_turn("system")
+#     chat.add_text("Respond with interleaved text and audio.")
+#     chat.end_turn()
 
-    # User prompt with audio input
-    chat.new_turn("user")
-    wav, sampling_rate = torchaudio.load(f"/sessions/{session_id}/question.wav")
-    chat.add_audio(wav, sampling_rate)
-    chat.end_turn()
+#     # User prompt with audio input
+#     chat.new_turn("user")
+#     wav, sampling_rate = torchaudio.load(f"/sessions/{session_id}/question.wav")
+#     chat.add_audio(wav, sampling_rate)
+#     chat.end_turn()
 
-    chat.new_turn("assistant")
+#     chat.new_turn("assistant")
 
-    # Generate text and audio tokens.
-    text_out: list[torch.Tensor] = []
-    audio_out: list[torch.Tensor] = []
-    modality_out: list[LFMModality] = []
-    for t in model.generate_interleaved(**chat, max_new_tokens=512, audio_temperature=1.0, audio_top_k=4):
-        if t.numel() == 1:
-            print(processor.text.decode(t), end="", flush=True)
-            text_out.append(t)
-            modality_out.append(LFMModality.TEXT)
-        else:
-            audio_out.append(t)
-            modality_out.append(LFMModality.AUDIO_OUT)
+#     # Generate text and audio tokens.
+#     text_out: list[torch.Tensor] = []
+#     audio_out: list[torch.Tensor] = []
+#     modality_out: list[LFMModality] = []
+#     for t in model.generate_interleaved(**chat, max_new_tokens=512, audio_temperature=1.0, audio_top_k=4):
+#         if t.numel() == 1:
+#             print(processor.text.decode(t), end="", flush=True)
+#             text_out.append(t)
+#             modality_out.append(LFMModality.TEXT)
+#         else:
+#             audio_out.append(t)
+#             modality_out.append(LFMModality.AUDIO_OUT)
 
-    # output: Sure! How about "Handcrafted Woodworking, Precision Made for You"? Another option could be "Quality Woodworking, Quality Results." If you want something more personal, you might try "Your Woodworking Needs, Our Expertise."
-
-    # Detokenize audio, removing the last "end-of-audio" codes
-    # Mimi returns audio at 24kHz
-    mimi_codes = torch.stack(audio_out[:-1], 1).unsqueeze(0)
-    with torch.no_grad():
-        waveform = processor.mimi.decode(mimi_codes)[0]
+#     # Detokenize audio, removing the last "end-of-audio" codes
+#     # Mimi returns audio at 24kHz
+#     mimi_codes = torch.stack(audio_out[:-1], 1).unsqueeze(0)
+#     with torch.no_grad():
+#         waveform = processor.mimi.decode(mimi_codes)[0]
     
-    # Save the generated audio file
-    answer_path = f"/sessions/{session_id}/answer1.wav"
-    torchaudio.save(answer_path, waveform.cpu(), 24_000)
+#     # Save the generated audio file
+#     answer_path = f"/sessions/{session_id}/answer1.wav"
+#     torchaudio.save(answer_path, waveform.cpu(), 24_000)
     
-    # Return the path to the generated audio file (remove /sessions prefix)
-    return answer_path.replace("/sessions", "")
-
-    
-    # # Append newly generated tokens to chat history
-    # chat.append(
-    #     text = torch.stack(text_out, 1),
-    #     audio_out = torch.stack(audio_out, 1),
-    #     modality_flag = torch.tensor(modality_out),
-    # )
-    # chat.end_turn()
-
-    # # Start new turn
-    # chat.new_turn("user")
-    # chat.add_text("My business specialized in chairs, can you give me something related to that?")
-    # chat.end_turn()
-
-    # chat.new_turn("assistant")
-
-    # # Generate second turn text and audio tokens.
-    # audio_out: list[torch.Tensor] = []
-    # for t in model.generate_interleaved(**chat, max_new_tokens=512, audio_temperature=1.0, audio_top_k=4):
-    #     if t.numel() == 1:
-    #         print(processor.text.decode(t), end="", flush=True)
-    #     else:
-    #         audio_out.append(t)
-
-    # # output: Sure thing! How about “Comfortable Chairs, Crafted with Care” or “Elegant Seats, Handcrafted for You”? Let me know if you’d like a few more options.
-
-    # # Detokenize second turn audio, removing the last "end-of-audio" codes
-    # mimi_codes = torch.stack(audio_out[:-1], 1).unsqueeze(0)
-    # with torch.no_grad():
-    #     waveform = processor.mimi.decode(mimi_codes)[0]
-    # torchaudio.save("/assets/answer2.wav", waveform.cpu(), 24_000)
+#     # Return the path to the generated audio file (remove /sessions prefix)
+#     return answer_path.replace("/sessions", "")
 
 def generate_session_id() -> str:
     """
@@ -188,11 +154,14 @@ def local_entrypoint():
     audio_manager.upload(str(audio_file))
     
     # run remote function and get the generated audio file path
-    remote_audio_path = run.remote(session_id)
+    # remote_audio_path = run.remote(session_id)
+    import modal
+    remote_audio_path = modal.Function.from_name("voice-chat-example", "get_model_response").remote(session_id)
     print(f"Audio generated at: {remote_audio_path}")
     
     # download the generated answer
     local_answer_path = f"answer_{session_id}.wav"
+    
     audio_manager.download("answer1.wav", local_answer_path)
     
     print(f"Generated audio saved to: {local_answer_path}")
