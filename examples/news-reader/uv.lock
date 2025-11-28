@@ -1000,6 +1000,7 @@ dependencies = [
     { name = "modal" },
     { name = "numpy" },
     { name = "pyaudio" },
+    { name = "rich" },
     { name = "scipy" },
     { name = "torchcodec" },
 ]
@@ -1010,6 +1011,7 @@ requires-dist = [
     { name = "modal", specifier = ">=1.2.4" },
     { name = "numpy", specifier = ">=2.3.5" },
     { name = "pyaudio", specifier = ">=0.2.14" },
+    { name = "rich", specifier = ">=13.0.0" },
     { name = "scipy", specifier = ">=1.16.3" },
     { name = "torchcodec", specifier = ">=0.8.1" },
 ]
