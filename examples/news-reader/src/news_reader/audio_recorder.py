@@ -1,11 +1,13 @@
 import threading
 import time
 from typing import Callable, Optional
+from pathlib import Path
 import wave
 
 import numpy as np
 import pyaudio
 
+from .audio_preprocessor import AudioPreprocessor
 
 class AudioRecorder:
     """
@@ -45,6 +47,7 @@ class AudioRecorder:
         self.silence_duration = 0.0  # Duration of current silence
         self.max_silence_duration = None  # Max silence before stopping
         self.last_chunk_time = None
+        self.has_detected_sound = False  # Only start silence timer after sound is detected
 
     def start_recording(
         self,
@@ -71,18 +74,25 @@ class AudioRecorder:
         self.max_silence_duration = silence_duration
         self.silence_threshold = silence_threshold
         self.last_chunk_time = time.time()
+        self.has_detected_sound = False
 
-        self.stream = self.audio.open(
-            format=self.format,
-            channels=self.channels,
-            rate=self.sample_rate,
-            input=True,
-            frames_per_buffer=self.chunk_size,
-        )
+        try:
+            self.stream = self.audio.open(
+                format=self.format,
+                channels=self.channels,
+                rate=self.sample_rate,
+                input=True,
+                frames_per_buffer=self.chunk_size,
+            )
+        except Exception as e:
+            print(f"Error opening audio stream: {e}")
+            print("Check microphone permissions and audio device availability")
+            self.is_recording = False
+            return
 
         self.recording_thread = threading.Thread(target=self._record_loop)
         self.recording_thread.start()
-
+        
         if silence_duration:
             print(
                 f"Recording started at {self.sample_rate}Hz... (will auto-stop after {silence_duration}s of silence)"
@@ -126,8 +136,12 @@ class AudioRecorder:
                 if self.max_silence_duration is not None:
                     is_silent = self._is_silent(audio_chunk)
 
-                    if is_silent:
-                        # Accumulate silence duration
+                    if not is_silent:
+                        # Sound detected - start tracking silence from now on
+                        self.has_detected_sound = True
+                        self.silence_duration = 0.0
+                    elif self.has_detected_sound:
+                        # Only count silence after we've heard sound
                         elapsed = current_time - self.last_chunk_time
                         self.silence_duration += elapsed
 
@@ -137,17 +151,13 @@ class AudioRecorder:
                             )
                             self.is_recording = False
                             break
-                    else:
-                        # Reset silence counter when sound is detected
-                        self.silence_duration = 0.0
 
                 self.last_chunk_time = current_time
 
                 # Call callback with the audio chunk if provided
                 if self.callback:
-                    self.callback(
-                        audio_chunk, is_silent if self.max_silence_duration else False
-                    )
+                    callback_is_silent = is_silent if self.max_silence_duration else self._is_silent(audio_chunk)
+                    self.callback(audio_chunk, callback_is_silent)
 
             except Exception as e:
                 print(f"Error during recording: {e}")
@@ -160,7 +170,9 @@ class AudioRecorder:
         Returns:
             numpy array of the recorded audio
         """
-        if not self.is_recording:
+        was_recording = self.is_recording or len(self.frames) > 0
+        
+        if not was_recording:
             print("Not currently recording!")
             return np.array([])
 
@@ -173,7 +185,8 @@ class AudioRecorder:
             self.stream.stop_stream()
             self.stream.close()
 
-        print("Recording stopped.")
+        if not was_recording:
+            print("Recording stopped.")
 
         # Convert frames to numpy array
         audio_data = b"".join(self.frames)
@@ -202,3 +215,94 @@ class AudioRecorder:
         if self.is_recording:
             self.stop_recording()
         self.audio.terminate()
+
+
+# Example usage: Recording and preprocessing together with auto-stop
+def record(silence_duration: float = 2.0, silence_threshold: float = 0.01) -> Optional[Path]:
+    """
+    Record audio and automatically stop when user is silent for specified duration.
+
+    Args:
+        silence_duration: Seconds of silence before auto-stopping (default: 2.0)
+        silence_threshold: Energy threshold for silence detection (default: 0.01)
+    """
+    # Initialize recorder and preprocessor
+    recorder = AudioRecorder(sample_rate=16000, channels=1)
+    preprocessor = AudioPreprocessor(sample_rate=16000)
+
+    # Real-time preprocessing callback
+    def process_chunk(chunk, is_silent):
+        # Normalize chunk in real-time
+        normalized = preprocessor.normalize(chunk)
+        energy = np.sqrt(np.mean(normalized**2))
+
+        # Visual feedback
+        silence_indicator = "[SILENT]" if is_silent else "[SPEAKING]"
+        bar_length = int(energy * 50)
+        bar = "=" * bar_length
+        print(
+            f"\r{silence_indicator} Energy: {bar:<50} {energy:.4f}", end="", flush=True
+        )
+
+    try:
+        print(f"Silence threshold set to: {silence_threshold}")
+        print(f"Will auto-stop after {silence_duration} seconds of silence")
+        print(f"Recording will save as: processed_audio.wav")
+        print("Start speaking...\n")
+
+        # Start recording with auto-stop on silence
+        recorder.start_recording(
+            callback=process_chunk,
+            silence_duration=silence_duration,
+            silence_threshold=silence_threshold,
+        )
+
+        # Wait for recording to complete (auto-stop or manual interrupt)
+        while recorder.is_recording:
+            time.sleep(0.1)
+
+        # Get recorded audio
+        audio_data = recorder.stop_recording()
+
+        if len(audio_data) == 0:
+            print("\nNo audio recorded!")
+            return None
+
+        # Full preprocessing
+        print("\n\nApplying full preprocessing pipeline...")
+        processed_audio = preprocessor.preprocess(
+            audio_data,
+            normalize=True,
+            remove_dc=True,
+            bandpass=True,
+            denoise=True,
+            trim=True,
+        )
+
+        # Save both raw and processed audio
+        recorder.save_to_file("raw_audio.wav", audio_data)
+
+        # Convert back to int16 for saving
+        processed_int16 = (processed_audio * 32767).astype(np.int16)
+        output_file = "processed_audio.wav"
+        recorder.save_to_file(output_file, processed_int16)
+
+        print(
+            f"\nOriginal audio length: {len(audio_data)} samples ({len(audio_data)/16000:.2f}s)"
+        )
+        print(
+            f"Processed audio length: {len(processed_audio)} samples ({len(processed_audio)/16000:.2f}s)"
+        )
+        
+        return Path(output_file).resolve()
+
+    except KeyboardInterrupt:
+        print("\n\nRecording interrupted by user!")
+        audio_data = recorder.stop_recording()
+        if len(audio_data) > 0:
+            output_file = "interrupted_audio.wav"
+            recorder.save_to_file(output_file, audio_data)
+            return Path(output_file).resolve()
+        return None
+    finally:
+        recorder.cleanup()

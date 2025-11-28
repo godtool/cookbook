@@ -5,7 +5,7 @@ from .audio_recorder import AudioRecorder
 from .audio_preprocessor import AudioPreprocessor
 
 # Example usage: Recording and preprocessing together with auto-stop
-def main(silence_duration: float = 2.0, silence_threshold: float = 0.01):
+def record(silence_duration: float = 2.0, silence_threshold: float = 0.01):
     """
     Record audio and automatically stop when user is silent for specified duration.
 
@@ -49,6 +49,7 @@ def main(silence_duration: float = 2.0, silence_threshold: float = 0.01):
 
         # Get recorded audio
         audio_data = recorder.stop_recording()
+        breakpoint()
 
         if len(audio_data) == 0:
             print("\nNo audio recorded!")
@@ -88,9 +89,11 @@ def main(silence_duration: float = 2.0, silence_threshold: float = 0.01):
         recorder.cleanup()
 
 
+
+
 if __name__ == "__main__":
     # You can customize these parameters
-    main(
+    record(
         silence_duration=20.0,  # Stop after 2 seconds of silence
         silence_threshold=0.01,  # Energy threshold for silence detection
     )
