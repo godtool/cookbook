@@ -1,8 +1,8 @@
 <h1 align="center">Liquid AI Cookbook</h1>
-<p align="center"><em>Build with LFM2 Models and the LEAP SDK</em></p>
+<p align="center"><em>Build with Liquid AI Models and the Liquid Edge AI Platform</em></p>
 
 <p align="center">
-    🌊 <a href="https://leap.liquid.ai/docs"><b>Documentation</b></a>&nbsp&nbsp | &nbsp&nbsp🤗 <a href="https://huggingface.co/LiquidAI">Hugging Face</a>&nbsp&nbsp | &nbsp&nbsp🚀 <a href="https://leap.liquid.ai">LEAP Edge SDK</a>&nbsp&nbsp | &nbsp&nbsp📚 <a href="#end-2-end-tutorials">Tutorials</a>&nbsp&nbsp | &nbsp&nbsp🏗️ <a href="#examples-built-by-our-community">Community Examples</a>
+    🌊 <a href="https://docs.liquid.ai/"><b>Liquid Docs</b></a>&nbsp&nbsp | &nbsp&nbsp🤗 <a href="https://huggingface.co/LiquidAI">Hugging Face</a>&nbsp&nbsp | &nbsp&nbsp🚀 <a href="https://leap.liquid.ai">Liquid Edge AI Platform</a>
 </p>
 <p align="center">
     <a href="https://discord.gg/DFU3WQeaYD"><img src="https://img.shields.io/discord/1385439864920739850?color=7289da&label=Join%20Discord&logo=discord&logoColor=white" alt="Join Discord"></a>&nbsp&nbsp</a>
@@ -17,11 +17,11 @@ Whether you're looking to customize models, deploy to laptops, edge devices, or 
 
 ## What are you looking for? 🔍
 
-- [Local agentic workflow examples](#local-agentic-workflow-examples)
-- [Fine tune an LFM2 model](#fine-tune-an-lfm2-model)
-- [Deploy an LFM2 model to an iOS or Android device](#deploy-to-an-edge-device)
-- [End-to-end tutorials](#end-2-end-tutorials). Complete walkthroughs from setup to production.
-- [Apps built by our community](#examples-built-by-our-community) that you can run and modify
+- [Local agentic workflow examples 🤖](#local-agentic-workflow-examples)
+- [Fine tune an LFM2 model 🎯](#fine-tune-an-lfm2-model)
+- [Deploy an LFM2 model to an iOS or Android device 📱](#deploy-to-an-edge-device)
+- [End-to-end tutorials 📚](#end-2-end-tutorials). Complete walkthroughs from setup to production.
+- [Examples built by our community 🌟](#examples-built-by-our-community) that you can run and modify
 
 ## Local agentic workflow examples 🤖
 
@@ -29,6 +29,8 @@ Whether you're looking to customize models, deploy to laptops, edge devices, or 
 |-------|-----------|---------------|
 | **invoice-parser** | A Python CLI that extracts structured data from bill pictures using a 2-step agentic workflow | [▶️ Go to the code](./examples/invoice-parser/) |
 | **audio-transcription-cli** | A Python CLI for real-time audio-to-text transcription using LFM2-Audio-1.5B with llama.cpp | [▶️ Go to the code](./examples/audio-transcription-cli/) |
+
+
 
 
 
@@ -135,15 +137,6 @@ Working applications that demonstrate Liquid models in action.
 |---------|------------|
 | TranslatorLens: Building An Offline Translation Camera | [▶️ Go to the repo](https://github.com/linmx0130/TranslatorLens) ![GitHub Repo stars](https://img.shields.io/github/stars/linmx0130/TranslatorLens) |
 | Food Images Fine-tuning | [▶️ Go to the repo](https://github.com/benitomartin/food-images-finetuning) ![GitHub Repo stars](https://img.shields.io/github/stars/benitomartin/food-images-finetuning) |
-
-
-
-<!-- Detailed documentation for working with Liquid models:
-
-- [Model API](docs/api/models.md) - Load, configure, and run models
-- [Training API](docs/api/training.md) - Fine-tuning and training utilities
-- [Deployment API](docs/api/deployment.md) - Optimization and export tools
-- [Data Processing](docs/api/data.md) - Dataset handling and preprocessing -->
 
 
 ## Contributing 🤝
