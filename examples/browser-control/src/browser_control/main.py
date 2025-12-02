@@ -94,13 +94,14 @@ if tokenizer is None:
 if getattr(tokenizer, "pad_token", None) is None:
     tokenizer.pad_token = tokenizer.eos_token
 
-# env = BrowserGymEnv.from_hub(
-#     repo_id="burtenshaw/browsergym_env",
-#     env_vars={
-#         "BROWSERGYM_BENCHMARK": "miniwob",
-#         "BROWSERGYM_TASK_NAME": "click-test",
-#     },
-# )
+
+env = BrowserGymEnv.from_hub(
+    repo_id="burtenshaw/browsergym-env-95313e2",
+    env_vars={
+        "BROWSERGYM_BENCHMARK": "miniwob",
+        "BROWSERGYM_TASK_NAME": "click-test",
+    },
+)
 # env = BrowserGymEnv.from_docker_image(
 #     "registry.hf.space/burtenshaw-browsergym-env-95313e2:latest",
 #     environment={
@@ -110,7 +111,7 @@ if getattr(tokenizer, "pad_token", None) is None:
 # )
 
 # We can also run the environment in another process using the following code:
-env = BrowserGymEnv(base_url="http://localhost:8000")
+# env = BrowserGymEnv(base_url="http://localhost:8000")
 
 # ---------------------------------------------------------------------------
 # Helpers
