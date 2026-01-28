@@ -1,5 +1,8 @@
 # Fine-tuning recipes for LFM2 models
 
+[English](README.md) | [中文](README_zh.md)
+
+
 We recommend you fine-tune LFM2 models if you are looking to improve the performance of a model for your specific use case.
 
 In this page you can find a collection of notebooks and examples to fine-tune LFM2 models using different techniques.

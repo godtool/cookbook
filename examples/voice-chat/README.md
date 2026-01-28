@@ -1,5 +1,8 @@
 # Voice Chat
 
+[English](README.md) | [中文](README_zh.md)
+
+
 A voice chat application that uses the LFM2-Audio-1.5B model to generate conversational audio responses.
 
 This application could work 100% locally, but the liquid-audio library requires CUDA. This is why the model is wrapped inside a Modal function and deployed to a serverless GPU environment with CUDA, so you can run it even if you (like me) don't have an NVIDIA GPU at home. Record your voice, send it for processing, and receive an audio response that plays automatically.

@@ -1,5 +1,8 @@
 # Find and book plane tickets using LFM2.5-1.2B-Thinking
 
+[English](README.md) | [中文](README_zh.md)
+
+
 [![Discord](https://img.shields.io/discord/1385439864920739850?color=7289da&label=Join%20Discord&logo=discord&logoColor=white)](https://discord.com/invite/liquid-ai)
 
 This is a minimal Python CLI that helps you find and book plane tickets using tool calling and reasoning to solve multi-step workflows.

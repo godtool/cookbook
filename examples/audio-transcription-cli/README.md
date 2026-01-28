@@ -1,5 +1,8 @@
 # Audio-to-text transcription in real-time with LFM2-Audio-1.5B
 
+[English](README.md) | [中文](README_zh.md)
+
+
 [![Discord](https://img.shields.io/discord/1385439864920739850?color=7289da&label=Join%20Discord&logo=discord&logoColor=white)](https://discord.com/invite/liquid-ai)
 
 ## What's inside?

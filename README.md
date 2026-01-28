@@ -1,5 +1,6 @@
 <h1 align="center">Liquid AI Cookbook</h1>
 <p align="center"><em>Build with Liquid AI models and the Liquid Edge AI Platform</em></p>
+<p align="center"><a href="./README.md">English</a> | <a href="./README_zh.md">中文</a></p>
 
 <p align="center">
     🌊 <a href="https://docs.liquid.ai/"><b>Liquid Docs</b></a>&nbsp&nbsp | &nbsp&nbsp🤗 <a href="https://huggingface.co/LiquidAI">Hugging Face</a>&nbsp&nbsp | &nbsp&nbsp🚀 <a href="https://leap.liquid.ai">Liquid Edge AI Platform</a>
@@ -14,6 +15,16 @@
 This repository contains **examples**, **tutorials**, and **applications** built with Liquid AI open-weight models (LFM) and the open-source LEAP SDK.
 
 Whether you're looking to customize models, deploy to laptops, edge devices, or build complete applications, you'll find resources here to get started.
+
+## Terminology (EN ⇄ 中文)
+
+| English | 中文 |
+|---|---|
+| fine-tuning | 微调 |
+| inference | 推理 |
+| structured generation | 结构化生成 |
+| tool calling | 工具调用 |
+| edge devices | 端侧设备 |
 
 ## What are you looking for? 🔍
 
